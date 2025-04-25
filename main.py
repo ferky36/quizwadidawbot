@@ -209,24 +209,26 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def timeout_question(context, chat_id, seconds):
     await asyncio.sleep(seconds)
     session = sessions.get(chat_id)
-    if not session or not session.get("question_active", False):
-        return  # Soal sudah dijawab semua
 
-    session["question_active"] = False  # ⏰ soal ditutup
+    # ⛔ Soal sudah dijawab semua?
+    if not session or not session.get("question_active", False):
+        return
+
+    session["question_active"] = False
     await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
     await show_correct_and_continue(context, chat_id)
+
 
 
 async def send_question_to_group(context, chat_id):
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
-    
-    # Acak opsi jawaban
+
     options = question["options"]
     random.shuffle(options)
     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    session["question_active"] = True  # 🔥 flag aktif
+    session["question_active"] = True
     session["answer_order"] = []
 
     await context.bot.send_message(
@@ -235,8 +237,9 @@ async def send_question_to_group(context, chat_id):
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-    # Timer timeout 15 detik
+    # ⏱️ Mulai timer 15 detik untuk soal ini
     asyncio.create_task(timeout_question(context, chat_id, 15))
+
 
 
 
@@ -421,9 +424,6 @@ async def show_correct_and_continue(context, chat_id):
     session["index"] += 1
     session["answers"] = {}
     session["answer_order"] = []
-
-    # Tunggu selama 15 detik dan lanjutkan ke soal berikutnya
-    await asyncio.sleep(15)
 
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
