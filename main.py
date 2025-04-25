@@ -436,7 +436,9 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
             result_text += f"❌ {name} salah.\n"
 
     result_text += f"\nJawaban yang benar adalah: {correct}"
-
+    
+    # Cek siapa yang belum jawab (tidak termasuk ke bagian salah)
+    unanswered = [uid for uid in session["participants"] if uid not in session["answers"]]
     if unanswered:
         names = []
         for uid in unanswered:
