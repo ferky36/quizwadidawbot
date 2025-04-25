@@ -225,7 +225,7 @@ async def timeout_question(context, chat_id, seconds):
         except:
             pass
         await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
-        await show_correct_and_continue(context, chat_id)
+        await show_correct_and_continue(context, chat_id, timeout=True)
     except asyncio.CancelledError:
         pass
 
@@ -436,7 +436,7 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
             result_text += f"❌ {name} salah.\n"
 
     result_text += f"\nJawaban yang benar adalah: {correct}"
-    
+
     # Cek siapa yang belum jawab (tidak termasuk ke bagian salah)
     unanswered = [uid for uid in session["participants"] if uid not in session["answers"]]
     if unanswered:
