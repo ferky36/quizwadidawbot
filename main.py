@@ -215,7 +215,9 @@ async def timeout_question(context, chat_id, seconds):
         session = sessions.get(chat_id)
         if not session or not session.get("question_active", False):
             return
+
         session["question_active"] = False
+
         try:
             await context.bot.edit_message_reply_markup(
                 chat_id=chat_id,
@@ -224,12 +226,12 @@ async def timeout_question(context, chat_id, seconds):
             )
         except:
             pass
+
         await show_correct_and_continue(context, chat_id, timeout=True)
+
     except asyncio.CancelledError:
+        # Timer dibatalkan (karena semua user udah jawab lebih cepat)
         pass
-
-
-
 
 
 async def send_question_to_group(context, chat_id):
@@ -240,12 +242,6 @@ async def send_question_to_group(context, chat_id):
     random.shuffle(options)
     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    session["question_active"] = True
-    session["answer_order"] = []
-    session["answers"] = {}
-    session["current_question_id"] = session["index"]  # ✅ Simpan ID soal aktif
-
-    # Kirim soal
     sent_message = await context.bot.send_message(
         chat_id=chat_id,
         text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
@@ -258,8 +254,6 @@ async def send_question_to_group(context, chat_id):
     session["current_question_id"] = session["index"]
     session["current_message_id"] = sent_message.message_id
     session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
-
-
 
 
 
