@@ -395,15 +395,6 @@ async def show_correct_and_continue(context, chat_id):
     correct = question["answer"]
     result_text = "📢 Hasil Jawaban:\n"
 
-    try:
-        await context.bot.edit_message_reply_markup(
-            chat_id=chat_id,
-            message_id=session.get("current_message_id"),
-            reply_markup=None
-        )
-    except:
-        pass
-
     # Batalkan timeout kalau masih jalan
     timeout_task = session.get("timeout_task")
     if timeout_task and not timeout_task.done():
@@ -452,7 +443,7 @@ async def show_correct_and_continue(context, chat_id):
                 user = await context.bot.get_chat(uid)
                 names.append(user.first_name)
             except:
-                names.append(f"User {uid}")
+                names.append(f"User tidak dikenal (ID: {uid})")
         result_text += "\n\n🚫 Belum menjawab:\n" + "\n".join(names)
 
     # Kirim hasil dan lanjutkan
@@ -463,11 +454,13 @@ async def show_correct_and_continue(context, chat_id):
         text="ℹ️ Ketik /myscore untuk melihat skor sementara kamu.\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
     )
 
+    # 🔐 Reset flag sebelum lanjut
+    session["question_active"] = False
     session["index"] += 1
     session["answers"] = {}
     session["answer_order"] = []
-    session["question_active"] = False  # reset flag
 
+    # Kirim soal berikutnya atau tampilkan hasil akhir
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
     else:
