@@ -17,8 +17,7 @@ scores_db = "scores_db.json"
 # with open("questions.json", "r", encoding="utf-8") as f:
 #     all_questions_master = json.load(f)
 
-sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
-all_questions_master = load_questions_from_sheet(sheet_url)
+
 
 # Load previous scores from file
 def load_scores():
@@ -52,6 +51,9 @@ def load_questions_from_sheet(url):
             "answer": options[correct_index]
         })
     return questions
+
+sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
+all_questions_master = load_questions_from_sheet(sheet_url)
 
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
