@@ -5,7 +5,7 @@ import requests
 import csv
 import io
 import os
-from aiohttp import web
+# from aiohttp import web
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -55,6 +55,15 @@ all_questions_master = load_questions_from_sheet(sheet_url)
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""🧠 Selamat datang di sesi Quiz Wadidaw!
+    
+    Berikut List command quiz wadidaw:
+    /quizwadidaw -> munculin bot quiz
+    /joinquiz -> jojn quiz
+    /questionstatus -> liat status pertanyaan
+    /myscore -> liat score sementara
+    /leaderboard -> liat total score di grup
+    /restartquiz -> restart quiz
+    /listpemain -> buat liat list pemain yg udah join quiz
 
     Ketik /joinquiz untuk bergabung ke sesi terlebih dahulu.""")
 
@@ -495,11 +504,11 @@ async def restart_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔄 Sesi quiz telah di-reset. Kamu bisa mulai quiz lagi dengan /quizwadidaw!")
 
 # Webhook handler
-async def webhook_handler(request):
-    data = await request.json()
-    update = Update.de_json(data, app.bot)
-    await app.update_queue.put(update)
-    return web.Response()
+# async def webhook_handler(request):
+#     data = await request.json()
+#     update = Update.de_json(data, app.bot)
+#     await app.update_queue.put(update)
+#     return web.Response()
 
 # Main
 TOKEN = os.environ.get("BOT_TOKEN")
@@ -509,7 +518,7 @@ def main():
     global app
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Daftar handler
+    # Tambahkan semua handler seperti sebelumnya
     app.add_handler(CommandHandler("quizwadidaw", start_quiz_wadidaw))
     app.add_handler(CommandHandler("joinquiz", join_quiz))
     app.add_handler(CommandHandler("setlimit", set_question_limit))
@@ -518,26 +527,18 @@ def main():
     app.add_handler(CommandHandler("myscore", my_score))
     app.add_handler(CommandHandler("leaderboard", leaderboard))
     app.add_handler(CommandHandler("restartquiz", restart_quiz))
-    app.add_handler(CommandHandler("listpemain", list_players))
+    app.add_handler(CommandHandler("listpemain", list_players)) 
     app.add_handler(CallbackQueryHandler(handle_answer, pattern="^(?!limit_)(?!start_quiz).+"))
     app.add_handler(CallbackQueryHandler(handle_limit_selection, pattern="^limit_.*"))
     app.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
 
-    # Webhook setup
-    async def on_startup(app_):
-        await app.bot.set_webhook(WEBHOOK_URL)
-
-    # Web server aiohttp
-    web_app = web.Application()
-    web_app.router.add_post("/webhook", webhook_handler)
-
+    # Jalankan webhook
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
         webhook_url=WEBHOOK_URL,
-        web_app=web_app,
-        on_startup=on_startup,
     )
+
 
 if __name__ == "__main__":
     main()
