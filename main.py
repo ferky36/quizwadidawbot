@@ -18,18 +18,7 @@ scores_db = "scores_db.json"
 # with open("questions.json", "r", encoding="utf-8") as f:
 #     all_questions_master = json.load(f)
 
-sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
-all_questions_master = load_questions_from_sheet(sheet_url)
 
-# Flask app
-app = Flask(__name__)
-
-# Webhook endpoint
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    application.process_update(update)
-    return 'ok'
 
 # Load previous scores from file
 def load_scores():
@@ -63,6 +52,19 @@ def load_questions_from_sheet(url):
             "answer": options[correct_index]
         })
     return questions
+
+sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
+all_questions_master = load_questions_from_sheet(sheet_url)
+
+# Flask app
+app = Flask(__name__)
+
+# Webhook endpoint
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), bot)
+    application.process_update(update)
+    return 'ok'
 
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -528,7 +530,7 @@ def main():
 
     # Set webhook
     PORT = int(os.environ.get('PORT', 5000))
-    bot.run_webhook(listen="0.0.0.0", port=PORT, url_path='YOUR_TELEGRAM_BOT_TOKEN')
+    bot.run_webhook(listen="0.0.0.0", port=PORT, url_path='8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0')
     app.run(host='0.0.0.0', port=PORT)
 
 if __name__ == "__main__":
