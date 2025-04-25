@@ -1,6 +1,9 @@
 import logging
 import json
 import random
+import requests
+import csv
+import io
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -11,8 +14,10 @@ sessions = {}  # session per chat_id
 scores_db = "scores_db.json"
 
 # Load questions
-with open("questions.json", "r", encoding="utf-8") as f:
-    all_questions_master = json.load(f)
+# with open("questions.json", "r", encoding="utf-8") as f:
+#     all_questions_master = json.load(f)
+
+
 
 # Load previous scores from file
 def load_scores():
@@ -29,6 +34,26 @@ def save_scores():
 
 # Global score dictionary (keeps track of all quiz scores across all groups)
 global_scores = load_scores()
+
+#load questions from Google Sheets
+def load_questions_from_sheet(url):
+    response = requests.get(url)
+    response.raise_for_status()
+
+    questions = []
+    reader = csv.DictReader(io.StringIO(response.text))
+    for row in reader:
+        correct_index = ["A", "B", "C", "D"].index(row["Correct"].strip().upper())
+        options = [row["A"], row["B"], row["C"], row["D"]]
+        questions.append({
+            "question": row["Question"],
+            "options": options,
+            "answer": options[correct_index]
+        })
+    return questions
+
+sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
+all_questions_master = load_questions_from_sheet(sheet_url)
 
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
