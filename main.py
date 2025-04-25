@@ -195,35 +195,17 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #fungsi timer
 async def timeout_question(context, chat_id, seconds):
-    try:
-        await asyncio.sleep(seconds)
+    await asyncio.sleep(seconds)
+    session = sessions.get(chat_id)
 
-        # JANGAN keluar walau sudah False, kita tetap lanjut
-        session = sessions.get(chat_id)
-        if not session:
-            return
+    # ⛔ Soal sudah dijawab semua?
+    if not session or not session.get("question_active", False):
+        return
 
-        # if session.get("question_active", False):  # masih aktif? baru kita matikan
-        session["question_active"] = False
+    session["question_active"] = False
+    await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
+    await show_correct_and_continue(context, chat_id)
 
-        try:
-            await context.bot.edit_message_reply_markup(
-                chat_id=chat_id,
-                message_id=session.get("current_message_id"),
-                reply_markup=None
-            )
-            await show_correct_and_continue(context, chat_id, timeout=True)
-        except:
-            pass
-
-    
-
-
-    except asyncio.CancelledError:
-        # Timeout dibatalkan karena semua user sudah menjawab
-        pass
-
-    logging.info(f"⏰ Timeout selesai untuk chat_id {chat_id}")
 
 
 async def send_question_to_group(context, chat_id):
@@ -237,19 +219,18 @@ async def send_question_to_group(context, chat_id):
     random.shuffle(options)
     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    sent_message = await context.bot.send_message(
+    session["question_active"] = True
+    session["answer_order"] = []
+
+    await context.bot.send_message(
         chat_id=chat_id,
         text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-    session["question_active"] = True
-    session["answers"] = {}
-    session["answer_order"] = []
-    session["current_question_id"] = session["index"]
-    session["current_message_id"] = sent_message.message_id
-    logging.info(f"⏰ Timeout 15 detik dimulai untuk soal #{session['index'] + 1}")
-    session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
+    # ⏱️ Mulai timer 15 detik untuk soal ini
+    asyncio.create_task(timeout_question(context, chat_id, 15))
+
 
 
 
@@ -420,9 +401,6 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     session["answers"] = {}
     session["answer_order"] = []
 
-    logging.info(f"Melanjutkan ke soal berikutnya, index: {session['index']}")
-    logging.info(f"limit nya, index: {session['limit']}")
-    # Kirim soal berikutnya atau tampilkan hasil akhir
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
     else:
