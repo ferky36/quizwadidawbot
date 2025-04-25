@@ -192,12 +192,18 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Send question to group
 # async def send_question_to_group(context, chat_id):
-#     session = sessions[chat_id]
-#     question = session["questions"][session["index"]]
-#     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in question["options"]]
+    session = sessions[chat_id]
+    question = session["questions"][session["index"]]
 
-#     try:
-#         await context.bot.send_message(
+    # Randomize options
+    options = question["options"]
+    random.shuffle(options)
+    keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
+
+    session["question_active"] = True
+    session["answer_order"] = []
+
+    await context.bot.send_message(
 #             chat_id=chat_id,
 #             text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
 #             reply_markup=InlineKeyboardMarkup(keyboard)
@@ -211,21 +217,22 @@ async def timeout_question(context, chat_id, seconds):
     session = sessions.get(chat_id)
     if session and len(session["answers"]) < len(session["participants"]):
         await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
+    asyncio.create_task(timeout_question(context, chat_id, 15))
         await show_correct_and_continue(context, chat_id)
 
 async def send_question_to_group(context, chat_id):
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
-    
-    # Randomize the options
-    options = question["options"]
-    random.shuffle(options)  # Shuffle the options randomly
 
-    # Create the keyboard with randomized options
+    # Randomize options
+    options = question["options"]
+    random.shuffle(options)
     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    try:
-        await context.bot.send_message(
+    session["question_active"] = True
+    session["answer_order"] = []
+
+    await context.bot.send_message(
             chat_id=chat_id,
             text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
             reply_markup=InlineKeyboardMarkup(keyboard)
@@ -244,6 +251,30 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session = sessions[chat_id]
     user_id = query.from_user.id
     await query.answer()
+
+    if not session["started"]:
+        await query.message.reply_text("❗ Quiz belum dimulai. Gunakan /startquiznow")
+        return
+
+    if not session.get("question_active", False):
+        await query.message.reply_text("❗ Waktu menjawab sudah habis atau soal sudah berganti.")
+        return
+
+    if user_id not in session["participants"]:
+        await query.message.reply_text("❗ Kamu tidak terdaftar sebagai peserta quiz ini.")
+        return
+
+    if user_id in session["answers"]:
+        await query.message.reply_text("❗ Kamu sudah menjawab soal ini.")
+        return
+
+    session["answers"][user_id] = query.data
+    session.setdefault("answer_order", []).append(user_id)
+
+    if len(session["answers"]) == len(session["participants"]):
+        session["question_active"] = False
+        await show_correct_and_continue(context, chat_id)
+
 
     if not session["started"]:
         await query.message.reply_text("❗ Quiz belum dimulai. Gunakan /startquiznow")
@@ -335,6 +366,7 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
 
 #     result_text += f"\nJawaban yang benar adalah: {correct}"
 #     await context.bot.send_message(chat_id=chat_id, text=result_text)
+    asyncio.create_task(timeout_question(context, chat_id, 15))
 
 #     # Update global score
 #     # update_global_scores(chat_id, session["scores"])
@@ -408,6 +440,7 @@ async def show_correct_and_continue(context, chat_id):
 
     # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
+    asyncio.create_task(timeout_question(context, chat_id, 15))
 
     await context.bot.send_message(
         chat_id=chat_id,
@@ -461,6 +494,7 @@ async def show_final_scores(context, chat_id):
     msg += "\nKetik /quizwadidaw untuk memulai sesi game baru lagi!"
 
     await context.bot.send_message(chat_id=chat_id, text=msg)
+    asyncio.create_task(timeout_question(context, chat_id, 15))
 
 
     # ✅ Update global score SEKARANG
