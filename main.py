@@ -218,19 +218,19 @@ async def timeout_question(context, chat_id, seconds):
         if not session:
             return
 
-        if session.get("question_active", False):  # masih aktif? baru kita matikan
-            session["question_active"] = False
+        # if session.get("question_active", False):  # masih aktif? baru kita matikan
+        session["question_active"] = False
 
-            try:
-                await context.bot.edit_message_reply_markup(
-                    chat_id=chat_id,
-                    message_id=session.get("current_message_id"),
-                    reply_markup=None
-                )
-            except:
-                pass
+        try:
+            await context.bot.edit_message_reply_markup(
+                chat_id=chat_id,
+                message_id=session.get("current_message_id"),
+                reply_markup=None
+            )
+        except:
+            pass
 
-            await show_correct_and_continue(context, chat_id, timeout=True)
+        await show_correct_and_continue(context, chat_id, timeout=True)
 
     except asyncio.CancelledError:
         # Timeout dibatalkan karena semua user sudah menjawab
