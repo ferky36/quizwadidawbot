@@ -1,0 +1,337 @@
+[
+  {
+    "question": "Siapa penyanyi yang dikenal dengan julukan 'The King of Pop'?",
+    "options": ["Elvis Presley", "Michael Jackson", "Freddie Mercury", "Prince"],
+    "answer": "Michael Jackson"
+  },
+  {
+    "question": "Siapa yang menciptakan lagu 'Bohemian Rhapsody'?",
+    "options": ["John Lennon", "Freddie Mercury", "David Bowie", "Mick Jagger"],
+    "answer": "Freddie Mercury"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang dijuluki 'Queen of Pop Indonesia'?",
+    "options": ["Agnez Mo", "Rossa", "Krisdayanti", "Ruth Sahanaya"],
+    "answer": "Rossa"
+  },
+  {
+    "question": "Grup K-pop mana yang terkenal dengan lagu 'Dynamite'?",
+    "options": ["EXO", "BLACKPINK", "BTS", "TWICE"],
+    "answer": "BTS"
+  },
+  {
+    "question": "Siapa komposer terkenal dari era klasik yang menciptakan 'Eine kleine Nachtmusik'?",
+    "options": ["Ludwig van Beethoven", "Wolfgang Amadeus Mozart", "Johann Sebastian Bach", "Franz Schubert"],
+    "answer": "Wolfgang Amadeus Mozart"
+  },
+  {
+    "question": "Apa nama asli dari Freddie Mercury?",
+    "options": ["Farrokh Bulsara", "Frederick Mercury", "Brian May", "Roger Taylor"],
+    "answer": "Farrokh Bulsara"
+  },
+  {
+    "question": "Siapa penyanyi yang terkenal dengan lagu 'Rolling in the Deep'?",
+    "options": ["Adele", "Taylor Swift", "Beyoncé", "Rihanna"],
+    "answer": "Adele"
+  },
+  {
+    "question": "Dari negara mana genre musik reggae berasal?",
+    "options": ["Jamaika", "Amerika Serikat", "Inggris", "Brasil"],
+    "answer": "Jamaika"
+  },
+  {
+    "question": "Apa judul album debut Taylor Swift?",
+    "options": ["Fearless", "1989", "Red", "Taylor Swift"],
+    "answer": "Taylor Swift"
+  },
+  {
+    "question": "Siapa yang dikenal sebagai 'Ratu Pop'?",
+    "options": ["Madonna", "Britney Spears", "Lady Gaga", "Christina Aguilera"],
+    "answer": "Madonna"
+  },
+  {
+    "question": "Apa nama band yang dipimpin oleh Chris Martin?",
+    "options": ["Coldplay", "Radiohead", "Maroon 5", "U2"],
+    "answer": "Coldplay"
+  },
+  {
+    "question": "Siapa penyanyi pria Indonesia yang terkenal dengan lagu 'Kasih Putih'?",
+    "options": ["Glenn Fredly", "Ari Lasso", "Tulus", "Krisdayanti"],
+    "answer": "Glenn Fredly"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang terkenal dengan lagu 'Pudar'?",
+    "options": ["Agnez Mo", "Rossa", "Krisdayanti", "Ruth Sahanaya"],
+    "answer": "Rossa"
+  },
+  {
+    "question": "Siapa penyanyi pria Indonesia yang terkenal dengan lagu 'Sepatu'?",
+    "options": ["Tulus", "Afgan", "Ari Lasso", "Glenn Fredly"],
+    "answer": "Tulus"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang terkenal dengan lagu 'Cinta Sejati'?",
+    "options": ["Bunga Citra Lestari", "Agnez Mo", "Rossa", "Krisdayanti"],
+    "answer": "Bunga Citra Lestari"
+  },
+  {
+    "question": "Siapa penyanyi pria Indonesia yang terkenal dengan lagu 'Sadis'?",
+    "options": ["Afgan", "Tulus", "Ari Lasso", "Glenn Fredly"],
+    "answer": "Afgan"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang terkenal dengan lagu 'Mencintaimu'?",
+    "options": ["Krisdayanti", "Rossa", "Agnez Mo", "Ruth Sahanaya"],
+    "answer": "Krisdayanti"
+  },
+  {
+    "question": "Siapa penyanyi pria Indonesia yang terkenal dengan lagu 'Bunda'?",
+    "options": ["Melky Goeslaw", "Glenn Fredly", "Ari Lasso", "Tulus"],
+    "answer": "Melky Goeslaw"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang terkenal dengan lagu 'Kaulah Segalanya'?",
+    "options": ["Ruth Sahanaya", "Krisdayanti", "Rossa", "Agnez Mo"],
+    "answer": "Ruth Sahanaya"
+  },
+  {
+    "question": "Siapa penyanyi pria Indonesia yang terkenal dengan lagu 'Hampa'?",
+    "options": ["Ari Lasso", "Glenn Fredly", "Tulus", "Afgan"],
+    "answer": "Ari Lasso"
+  },
+  {
+    "question": "Siapa penyanyi pria yang dikenal dengan julukan 'The Boss'?",
+    "options": ["Bruce Springsteen", "Elton John", "Billy Joel", "Jon Bon Jovi"],
+    "answer": "Bruce Springsteen"
+  },
+  {
+    "question": "Grup band manakah yang membawakan lagu 'Stairway to Heaven'?",
+    "options": ["The Beatles", "Pink Floyd", "Led Zeppelin", "Deep Purple"],
+    "answer": "Led Zeppelin"
+  },
+  {
+    "question": "Apa nama band asal Inggris yang populer dengan lagu 'Yellow'?",
+    "options": ["Coldplay", "Muse", "Blur", "Oasis"],
+    "answer": "Coldplay"
+  },
+  {
+    "question": "Siapa penyanyi utama dari band Maroon 5?",
+    "options": ["Adam Levine", "Bruno Mars", "Chris Martin", "Justin Timberlake"],
+    "answer": "Adam Levine"
+  },
+  {
+    "question": "Siapa penyanyi wanita yang merilis album 'Lover'?",
+    "options": ["Billie Eilish", "Taylor Swift", "Selena Gomez", "Ariana Grande"],
+    "answer": "Taylor Swift"
+  },
+  {
+    "question": "Lagu 'Shape of You' dibawakan oleh siapa?",
+    "options": ["Ed Sheeran", "Justin Bieber", "Shawn Mendes", "Harry Styles"],
+    "answer": "Ed Sheeran"
+  },
+  {
+    "question": "Dari negara mana band 'ABBA' berasal?",
+    "options": ["Norwegia", "Swedia", "Finlandia", "Denmark"],
+    "answer": "Swedia"
+  },
+  {
+    "question": "Apa nama band yang dipimpin oleh Axl Rose?",
+    "options": ["Metallica", "Guns N' Roses", "Nirvana", "Pearl Jam"],
+    "answer": "Guns N' Roses"
+  },
+  {
+    "question": "Siapa penyanyi lagu 'Someone Like You'?",
+    "options": ["Adele", "Beyoncé", "Demi Lovato", "Lana Del Rey"],
+    "answer": "Adele"
+  },
+  {
+    "question": "Grup musik legendaris The Beatles berasal dari kota?",
+    "options": ["London", "Manchester", "Liverpool", "Birmingham"],
+    "answer": "Liverpool"
+  },
+  {
+    "question": "Apa nama panggung dari penyanyi Stefani Germanotta?",
+    "options": ["Lady Gaga", "Pink", "Madonna", "Cher"],
+    "answer": "Lady Gaga"
+  },
+  {
+    "question": "Siapa yang terkenal dengan lagu 'Thinking Out Loud'?",
+    "options": ["Ed Sheeran", "Shawn Mendes", "Sam Smith", "James Bay"],
+    "answer": "Ed Sheeran"
+  },
+  {
+    "question": "Lagu 'Fix You' dibawakan oleh band?",
+    "options": ["Coldplay", "U2", "Radiohead", "The Script"],
+    "answer": "Coldplay"
+  },
+  {
+    "question": "Siapa penyanyi pop pria yang merilis album 'Justice' tahun 2021?",
+    "options": ["Justin Bieber", "Shawn Mendes", "Zayn Malik", "Charlie Puth"],
+    "answer": "Justin Bieber"
+  },
+  {
+    "question": "Siapa DJ yang terkenal dengan lagu 'Wake Me Up'?",
+    "options": ["Avicii", "Calvin Harris", "David Guetta", "Zedd"],
+    "answer": "Avicii"
+  },
+  {
+    "question": "Lagu 'Hello' dibawakan oleh?",
+    "options": ["Adele", "Celine Dion", "Rihanna", "Sia"],
+    "answer": "Adele"
+  },
+  {
+    "question": "Siapa musisi jazz legendaris yang memainkan trompet?",
+    "options": ["Louis Armstrong", "Duke Ellington", "Miles Davis", "John Coltrane"],
+    "answer": "Louis Armstrong"
+  },
+  {
+    "question": "Band manakah yang memiliki vokalis bernama Chester Bennington?",
+    "options": ["Linkin Park", "Green Day", "Foo Fighters", "Papa Roach"],
+    "answer": "Linkin Park"
+  },
+  {
+    "question": "Siapa penyanyi Indonesia dengan lagu 'Monokrom'?",
+    "options": ["Tulus", "Afgan", "Yovie Widianto", "Rizky Febian"],
+    "answer": "Tulus"
+  },
+  {
+    "question": "Grup manakah yang membawakan lagu 'Sugar'?",
+    "options": ["Maroon 5", "OneRepublic", "The Chainsmokers", "Imagine Dragons"],
+    "answer": "Maroon 5"
+  },
+  {
+    "question": "Apa judul lagu hits milik BLACKPINK dan Selena Gomez?",
+    "options": ["Ice Cream", "How You Like That", "Kill This Love", "Lovesick Girls"],
+    "answer": "Ice Cream"
+  },
+  {
+    "question": "Siapa komposer lagu 'Canon in D'?",
+    "options": ["Johann Pachelbel", "Mozart", "Beethoven", "Vivaldi"],
+    "answer": "Johann Pachelbel"
+  },
+  {
+    "question": "Siapa penyanyi lagu 'Shallow' bersama Lady Gaga?",
+    "options": ["Bradley Cooper", "Justin Timberlake", "Ed Sheeran", "John Legend"],
+    "answer": "Bradley Cooper"
+  },
+  {
+    "question": "Apa nama girl group Korea Selatan dengan anggota Lisa?",
+    "options": ["BLACKPINK", "TWICE", "Red Velvet", "ITZY"],
+    "answer": "BLACKPINK"
+  },
+  {
+    "question": "Apa genre utama dari band Metallica?",
+    "options": ["Heavy Metal", "Rock", "Grunge", "Alternative"],
+    "answer": "Heavy Metal"
+  },
+  {
+    "question": "Siapa pencipta lagu Indonesia Raya?",
+    "options": ["W.R. Supratman", "Ismail Marzuki", "Ibu Sud", "H. Mutahar"],
+    "answer": "W.R. Supratman"
+  },
+  {
+    "question": "Band asal Indonesia yang terkenal dengan lagu 'Separuh Nafas'?",
+    "options": ["Dewa 19", "Sheila on 7", "Padi", "Ungu"],
+    "answer": "Dewa 19"
+  },
+  {
+    "question": "Siapa penyanyi lagu 'To Be With You' dari Mr. Big?",
+    "options": ["Eric Martin", "Billy Sheehan", "Paul Gilbert", "Pat Torpey"],
+    "answer": "Eric Martin"
+  },
+  {
+    "question": "Apa judul lagu debut Billie Eilish yang sangat populer?",
+    "options": ["Ocean Eyes", "Bad Guy", "Lovely", "When the Party's Over"],
+    "answer": "Ocean Eyes"
+  },
+  {
+    "question": "Siapa penyanyi pria yang merilis lagu 'Uptown Funk' bersama Bruno Mars?",
+    "options": ["Mark Ronson", "Pharrell Williams", "Pitbull", "Flo Rida"],
+    "answer": "Mark Ronson"
+  },
+  {
+    "question": "Apa judul lagu pembuka film Disney 'Frozen'?",
+    "options": ["Let It Go", "Do You Want to Build a Snowman?", "Into the Unknown", "Love is an Open Door"],
+    "answer": "Let It Go"
+  },
+  {
+    "question": "Grup band asal Amerika yang membawakan 'Radioactive'?",
+    "options": ["Imagine Dragons", "Fall Out Boy", "Panic! At The Disco", "OneRepublic"],
+    "answer": "Imagine Dragons"
+  },
+  {
+    "question": "Siapa penyanyi pria yang dikenal dengan suara falsetto tinggi dan lagu 'Stay With Me'?",
+    "options": ["Sam Smith", "James Blake", "Charlie Puth", "Troye Sivan"],
+    "answer": "Sam Smith"
+  },
+  {
+    "question": "Apa alat musik utama yang dimainkan oleh Yanni?",
+    "options": ["Piano", "Violin", "Flute", "Saxophone"],
+    "answer": "Piano"
+  },
+  {
+    "question": "Siapa penyanyi lagu 'Everything I Do (I Do It for You)'?",
+    "options": ["Bryan Adams", "Bon Jovi", "Phil Collins", "Michael Bolton"],
+    "answer": "Bryan Adams"
+  },
+  {
+    "question": "Siapa yang menyanyikan lagu tema film 'Titanic'?",
+    "options": ["Celine Dion", "Whitney Houston", "Mariah Carey", "Barbra Streisand"],
+    "answer": "Celine Dion"
+  },
+  {
+    "question": "Apa nama boy group Indonesia yang populer dengan lagu 'Sahabat Sejati'?",
+    "options": ["Sheila on 7", "D'MASIV", "Kahitna", "Padi"],
+    "answer": "Sheila on 7"
+  },
+  {
+    "question": "Apa lagu debut dari BTS?",
+    "options": ["No More Dream", "Boy in Luv", "I Need U", "Fire"],
+    "answer": "No More Dream"
+  },
+  {
+    "question": "Apa nama band dengan vokalis Hayley Williams?",
+    "options": ["Paramore", "Evanescence", "No Doubt", "Flyleaf"],
+    "answer": "Paramore"
+  },
+  {
+    "question": "Siapa penyanyi jazz Indonesia yang terkenal dengan lagu 'Semusim'?",
+    "options": ["Tompi", "Glenn Fredly", "Indra Lesmana", "Barry Likumahuwa"],
+    "answer": "Tompi"
+  },
+  {
+    "question": "Lagu 'Imagine' dibawakan oleh siapa?",
+    "options": ["John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr"],
+    "answer": "John Lennon"
+  },
+  {
+    "question": "Band manakah yang dikenal dengan logo lidah menjulur?",
+    "options": ["The Rolling Stones", "The Beatles", "Queen", "Nirvana"],
+    "answer": "The Rolling Stones"
+  },
+  {
+    "question": "Siapa penyanyi wanita muda yang dikenal dengan lagu 'drivers license'?",
+    "options": ["Olivia Rodrigo", "Billie Eilish", "Tate McRae", "Sabrina Carpenter"],
+    "answer": "Olivia Rodrigo"
+  },
+  {
+    "question": "Siapa anggota One Direction yang merilis lagu 'Watermelon Sugar'?",
+    "options": ["Harry Styles", "Zayn Malik", "Liam Payne", "Niall Horan"],
+    "answer": "Harry Styles"
+  },
+  {
+    "question": "Apa nama alat musik tiup dari Australia yang digunakan dalam musik tradisional?",
+    "options": ["Didgeridoo", "Pan Flute", "Oboe", "Saxophone"],
+    "answer": "Didgeridoo"
+  },
+  {
+    "question": "Siapa penyanyi wanita Indonesia yang juga aktris dan terkenal dengan lagu 'Tak Ada Logika'?",
+    "options": ["Agnez Mo", "Bunga Citra Lestari", "Maudy Ayunda", "Yura Yunita"],
+    "answer": "Agnez Mo"
+  },
+  {
+    "question": "Grup band Indonesia dengan lagu 'Pandangan Pertama'?",
+    "options": ["RAN", "Pee Wee Gaskins", "Geisha", "Samsons"],
+    "answer": "RAN"
+  }
+]
