@@ -212,13 +212,20 @@ async def timeout_question(context, chat_id, seconds):
         session = sessions.get(chat_id)
         if not session or not session.get("question_active", False):
             return
-
         session["question_active"] = False
+        try:
+            await context.bot.edit_message_reply_markup(
+                chat_id=chat_id,
+                message_id=session.get("current_message_id"),
+                reply_markup=None
+            )
+        except:
+            pass
         await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
         await show_correct_and_continue(context, chat_id)
     except asyncio.CancelledError:
-        # Task dibatalkan, abaikan timeout
         pass
+
 
 
 
@@ -237,14 +244,19 @@ async def send_question_to_group(context, chat_id):
     session["current_question_id"] = session["index"]  # ✅ Simpan ID soal aktif
 
     # Kirim soal
-    await context.bot.send_message(
+    sent_message = await context.bot.send_message(
         chat_id=chat_id,
         text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-    # Simpan task timeout di session
+    session["question_active"] = True
+    session["answers"] = {}
+    session["answer_order"] = []
+    session["current_question_id"] = session["index"]
+    session["current_message_id"] = sent_message.message_id
     session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
+
 
 
 
@@ -265,9 +277,8 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("❗ Waktu menjawab sudah habis atau soal sudah berganti.")
         return
 
-    # 🔒 Cegah jawaban soal lama
-    if session.get("current_question_id") != session["index"]:
-        await query.message.reply_text("❗ Kamu menjawab soal yang sudah lewat.")
+    if query.message.message_id != session.get("current_message_id"):
+        await query.message.reply_text("❗ Ini soal yang sudah lewat. Tidak bisa dijawab lagi.")
         return
 
     if user_id not in session["participants"]:
@@ -383,6 +394,20 @@ async def show_correct_and_continue(context, chat_id):
     question = session["questions"][session["index"]]
     correct = question["answer"]
     result_text = "📢 Hasil Jawaban:\n"
+
+    try:
+        await context.bot.edit_message_reply_markup(
+            chat_id=chat_id,
+            message_id=session.get("current_message_id"),
+            reply_markup=None
+        )
+    except:
+        pass
+
+    # Batalkan timeout kalau masih jalan
+    timeout_task = session.get("timeout_task")
+    if timeout_task and not timeout_task.done():
+        timeout_task.cancel()
 
     # List pengguna yang jawab benar dalam urutan kecepatan
     correct_users_ordered = []
