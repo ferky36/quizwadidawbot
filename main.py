@@ -4,6 +4,8 @@ import random
 import requests
 import csv
 import io
+import os
+from aiohttp import web
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -12,12 +14,6 @@ logging.basicConfig(level=logging.INFO)
 # Data
 sessions = {}  # session per chat_id
 scores_db = "scores_db.json"
-
-# Load questions
-# with open("questions.json", "r", encoding="utf-8") as f:
-#     all_questions_master = json.load(f)
-
-
 
 # Load previous scores from file
 def load_scores():
@@ -32,10 +28,10 @@ def save_scores():
     with open(scores_db, "w", encoding="utf-8") as f:
         json.dump(global_scores, f, indent=4)
 
-# Global score dictionary (keeps track of all quiz scores across all groups)
+# Global score dictionary
 global_scores = load_scores()
 
-#load questions from Google Sheets
+# Load questions from Google Sheets
 def load_questions_from_sheet(url):
     response = requests.get(url)
     response.raise_for_status()
@@ -52,9 +48,9 @@ def load_questions_from_sheet(url):
         })
     return questions
 
-# sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
 sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=1745206204"
 all_questions_master = load_questions_from_sheet(sheet_url)
+
 
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -498,10 +494,22 @@ async def restart_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("🔄 Sesi quiz telah di-reset. Kamu bisa mulai quiz lagi dengan /quizwadidaw!")
 
+# Webhook handler
+async def webhook_handler(request):
+    data = await request.json()
+    update = Update.de_json(data, app.bot)
+    await app.update_queue.put(update)
+    return web.Response()
 
 # Main
+TOKEN = os.environ.get("BOT_TOKEN")
+WEBHOOK_URL = os.environ.get("https://quizwadidawbot.onrender.com/webhook")
+
 def main():
-    app = ApplicationBuilder().token("8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0").build()
+    global app
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    # Daftar handler
     app.add_handler(CommandHandler("quizwadidaw", start_quiz_wadidaw))
     app.add_handler(CommandHandler("joinquiz", join_quiz))
     app.add_handler(CommandHandler("setlimit", set_question_limit))
@@ -510,11 +518,27 @@ def main():
     app.add_handler(CommandHandler("myscore", my_score))
     app.add_handler(CommandHandler("leaderboard", leaderboard))
     app.add_handler(CommandHandler("restartquiz", restart_quiz))
-    app.add_handler(CommandHandler("listpemain", list_players)) 
+    app.add_handler(CommandHandler("listpemain", list_players))
     app.add_handler(CallbackQueryHandler(handle_answer, pattern="^(?!limit_)(?!start_quiz).+"))
     app.add_handler(CallbackQueryHandler(handle_limit_selection, pattern="^limit_.*"))
     app.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
-    app.run_polling()
+
+    # Webhook setup
+    async def on_startup(app_):
+        await app.bot.set_webhook(WEBHOOK_URL)
+
+    # Web server aiohttp
+    web_app = web.Application()
+    web_app.router.add_post("/webhook", webhook_handler)
+
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        webhook_path="/webhook",
+        web_app=web_app,
+        on_startup=on_startup,
+    )
 
 if __name__ == "__main__":
     main()
+
