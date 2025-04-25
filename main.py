@@ -212,10 +212,10 @@ async def timeout_question(context, chat_id, seconds):
                 message_id=session.get("current_message_id"),
                 reply_markup=None
             )
+            await show_correct_and_continue(context, chat_id, timeout=True)
         except:
             pass
 
-        await show_correct_and_continue(context, chat_id, timeout=True)
     
 
 
