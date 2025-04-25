@@ -250,9 +250,8 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("❗ Waktu menjawab sudah habis atau soal sudah berganti.")
         return
 
-    messageid = session.get("current_message_id")
     logging.info(f"query.message.message_id: {query.message.message_id}")
-    logging.info(f"current_message_id: {messageid}")
+    logging.info(f"current_message_id: {session}")
     if query.message.message_id != session.get("current_message_id"):
         await query.message.reply_text("❗ Ini soal yang sudah lewat. Tidak bisa dijawab lagi.")
         return
