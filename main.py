@@ -512,7 +512,7 @@ async def restart_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Main
 TOKEN = os.environ.get("BOT_TOKEN")
-WEBHOOK_URL = os.environ.get("https://quizwadidawbot.onrender.com/webhook")
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
 
 def main():
     global app
