@@ -192,18 +192,18 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Send question to group
 # async def send_question_to_group(context, chat_id):
-    session = sessions[chat_id]
-    question = session["questions"][session["index"]]
+    # session = sessions[chat_id]
+    # question = session["questions"][session["index"]]
 
-    # Randomize options
-    options = question["options"]
-    random.shuffle(options)
-    keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
+    # # Randomize options
+    # options = question["options"]
+    # random.shuffle(options)
+    # keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    session["question_active"] = True
-    session["answer_order"] = []
+    # session["question_active"] = True
+    # session["answer_order"] = []
 
-    await context.bot.send_message(
+    # await context.bot.send_message(
 #             chat_id=chat_id,
 #             text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
 #             reply_markup=InlineKeyboardMarkup(keyboard)
