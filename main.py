@@ -347,12 +347,14 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     correct = question["answer"]
     result_text = "⏰ Waktu habis!\n\n📢 Hasil Jawaban:\n" if timeout else "📢 Hasil Jawaban:\n"
 
-    logging.info(f"Melanjutkan ke soal berikutnya, index: {session['index']}")
+    
 
     # Batalkan timeout kalau masih jalan
     timeout_task = session.get("timeout_task")
+    logging.info(f"timeout_task: {timeout_task}")
     if timeout_task and not timeout_task.done():
         timeout_task.cancel()
+
 
     # List pengguna yang jawab benar dalam urutan kecepatan
     correct_users_ordered = []
