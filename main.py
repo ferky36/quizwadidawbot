@@ -207,16 +207,19 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #fungsi timer
 async def timeout_question(context, chat_id, seconds):
-    await asyncio.sleep(seconds)
-    session = sessions.get(chat_id)
+    try:
+        await asyncio.sleep(seconds)
+        session = sessions.get(chat_id)
+        if not session or not session.get("question_active", False):
+            return
 
-    # ⛔ Soal sudah dijawab semua?
-    if not session or not session.get("question_active", False):
-        return
+        session["question_active"] = False
+        await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
+        await show_correct_and_continue(context, chat_id)
+    except asyncio.CancelledError:
+        # Task dibatalkan, abaikan timeout
+        pass
 
-    session["question_active"] = False
-    await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
-    await show_correct_and_continue(context, chat_id)
 
 
 
@@ -230,15 +233,17 @@ async def send_question_to_group(context, chat_id):
 
     session["question_active"] = True
     session["answer_order"] = []
+    session["answers"] = {}
 
+    # Kirim soal
     await context.bot.send_message(
         chat_id=chat_id,
         text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-    # ⏱️ Mulai timer 15 detik untuk soal ini
-    asyncio.create_task(timeout_question(context, chat_id, 15))
+    # Simpan task timeout di session
+    session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
 
 
 
@@ -276,6 +281,12 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Jika semua sudah jawab → langsung lanjut
     if len(session["answers"]) == len(session["participants"]):
         session["question_active"] = False  # 🔐 kunci soal
+
+        # 🔥 Batalin timeout
+        timeout_task = session.get("timeout_task")
+        if timeout_task and not timeout_task.done():
+            timeout_task.cancel()
+
         await show_correct_and_continue(context, chat_id)
 
 
@@ -367,16 +378,16 @@ async def show_correct_and_continue(context, chat_id):
     correct = question["answer"]
     result_text = "📢 Hasil Jawaban:\n"
 
-    # Urutan peserta yang menjawab benar
+    # List pengguna yang jawab benar dalam urutan kecepatan
     correct_users_ordered = []
+
     for uid in session["answer_order"]:
         selected = session["answers"].get(uid)
         if selected == correct:
             correct_users_ordered.append(uid)
 
-    # Tampilkan hasil untuk yang sudah menjawab
-    for uid in session["answers"]:
-        selected = session["answers"][uid]
+    for idx, uid in enumerate(session["participants"]):
+        selected = session["answers"].get(uid)
         try:
             user = await context.bot.get_chat(uid)
             name = user.first_name
@@ -384,21 +395,24 @@ async def show_correct_and_continue(context, chat_id):
             name = f"User {uid}"
 
         if selected == correct:
-            rank = correct_users_ordered.index(uid)
-            if rank == 0:
-                points = 5
-            elif rank == 1:
-                points = 3
+            if uid in correct_users_ordered:
+                rank = correct_users_ordered.index(uid)
+                if rank == 0:
+                    points = 5
+                elif rank == 1:
+                    points = 3
+                else:
+                    points = 1
+                session["scores"][uid] += points
+                result_text += f"✅ {name} menjawab benar! (+{points})\n"
             else:
-                points = 1
-            session["scores"][uid] += points
-            result_text += f"✅ {name} menjawab benar! (+{points})\n"
+                result_text += f"✅ {name} menjawab benar!\n"
         else:
             result_text += f"❌ {name} salah.\n"
 
     result_text += f"\nJawaban yang benar adalah: {correct}"
 
-    # Tampilkan yang belum menjawab (benar-benar tidak menjawab)
+    # Cek siapa yang belum jawab
     unanswered = [uid for uid in session["participants"] if uid not in session["answers"]]
     if unanswered:
         names = []
@@ -410,7 +424,7 @@ async def show_correct_and_continue(context, chat_id):
                 names.append(f"User {uid}")
         result_text += "\n\n🚫 Belum menjawab:\n" + "\n".join(names)
 
-    # Kirim hasil dan lanjut ke soal berikutnya
+    # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
 
     await context.bot.send_message(
@@ -421,13 +435,11 @@ async def show_correct_and_continue(context, chat_id):
     session["index"] += 1
     session["answers"] = {}
     session["answer_order"] = []
-    session["question_active"] = False  # penting, agar tidak bisa jawab soal lama
 
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
     else:
         await show_final_scores(context, chat_id)
-
 
 # Update global scores
 def update_global_scores(chat_id, local_scores):
