@@ -534,7 +534,7 @@ def main():
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
-        webhook_path="/webhook",
+        webhook_url=WEBHOOK_URL,
         web_app=web_app,
         on_startup=on_startup,
     )
