@@ -353,8 +353,6 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
 #         await show_final_scores(context, chat_id)
 
 
-import asyncio
-
 # Show correct and go to next
 async def show_correct_and_continue(context, chat_id):
     session = sessions[chat_id]
