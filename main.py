@@ -192,18 +192,12 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Send question to group
 # async def send_question_to_group(context, chat_id):
-    # session = sessions[chat_id]
-    # question = session["questions"][session["index"]]
+#     session = sessions[chat_id]
+#     question = session["questions"][session["index"]]
+#     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in question["options"]]
 
-    # # Randomize options
-    # options = question["options"]
-    # random.shuffle(options)
-    # keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
-
-    # session["question_active"] = True
-    # session["answer_order"] = []
-
-    # await context.bot.send_message(
+#     try:
+#         await context.bot.send_message(
 #             chat_id=chat_id,
 #             text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
 #             reply_markup=InlineKeyboardMarkup(keyboard)
@@ -215,33 +209,35 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def timeout_question(context, chat_id, seconds):
     await asyncio.sleep(seconds)
     session = sessions.get(chat_id)
-    if session and len(session["answers"]) < len(session["participants"]):
-        await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
-    asyncio.create_task(timeout_question(context, chat_id, 15))
-        await show_correct_and_continue(context, chat_id)
+    if not session or not session.get("question_active", False):
+        return  # Soal sudah dijawab semua
+
+    session["question_active"] = False  # ⏰ soal ditutup
+    await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
+    await show_correct_and_continue(context, chat_id)
+
 
 async def send_question_to_group(context, chat_id):
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
-
-    # Randomize options
+    
+    # Acak opsi jawaban
     options = question["options"]
     random.shuffle(options)
     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in options]
 
-    session["question_active"] = True
+    session["question_active"] = True  # 🔥 flag aktif
     session["answer_order"] = []
 
     await context.bot.send_message(
-            chat_id=chat_id,
-            text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-        
-        # Mulai timer 15 detik
-        asyncio.create_task(timeout_question(context, chat_id, 15))
-    except Exception as e:
-        logging.warning(f"Gagal kirim soal: {e}")
+        chat_id=chat_id,
+        text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+    # Timer timeout 15 detik
+    asyncio.create_task(timeout_question(context, chat_id, 15))
+
 
 
 # Handle Answer
@@ -269,39 +265,16 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session["answers"][user_id] = query.data
-    session.setdefault("answer_order", []).append(user_id)
 
-    if len(session["answers"]) == len(session["participants"]):
-        session["question_active"] = False
-        await show_correct_and_continue(context, chat_id)
-
-
-    if not session["started"]:
-        await query.message.reply_text("❗ Quiz belum dimulai. Gunakan /startquiznow")
-        return
-
-    if user_id not in session["participants"]:
-        await query.message.reply_text("❗ Kamu tidak terdaftar sebagai peserta quiz ini.")
-        return
-
-    if user_id in session["answers"]:
-        await query.message.reply_text("❗ Kamu sudah menjawab soal ini.")
-        return
-        
-    # Pastikan answer_order ada
     if "answer_order" not in session:
         session["answer_order"] = []
+    session["answer_order"].append(user_id)
 
-    # Lalu lanjut logika
-    if user_id not in session["answer_order"]:
-        session["answer_order"].append(user_id)
-
-    session["answers"][user_id] = query.data
-
-
-
+    # Jika semua sudah jawab → langsung lanjut
     if len(session["answers"]) == len(session["participants"]):
+        session["question_active"] = False  # 🔐 kunci soal
         await show_correct_and_continue(context, chat_id)
+
 
 # /questionstatus command
 async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -366,7 +339,6 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
 
 #     result_text += f"\nJawaban yang benar adalah: {correct}"
 #     await context.bot.send_message(chat_id=chat_id, text=result_text)
-    asyncio.create_task(timeout_question(context, chat_id, 15))
 
 #     # Update global score
 #     # update_global_scores(chat_id, session["scores"])
@@ -440,7 +412,6 @@ async def show_correct_and_continue(context, chat_id):
 
     # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
-    asyncio.create_task(timeout_question(context, chat_id, 15))
 
     await context.bot.send_message(
         chat_id=chat_id,
@@ -494,7 +465,6 @@ async def show_final_scores(context, chat_id):
     msg += "\nKetik /quizwadidaw untuk memulai sesi game baru lagi!"
 
     await context.bot.send_message(chat_id=chat_id, text=msg)
-    asyncio.create_task(timeout_question(context, chat_id, 15))
 
 
     # ✅ Update global score SEKARANG
