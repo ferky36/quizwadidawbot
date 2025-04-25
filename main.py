@@ -224,7 +224,6 @@ async def timeout_question(context, chat_id, seconds):
             )
         except:
             pass
-        await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
         await show_correct_and_continue(context, chat_id, timeout=True)
     except asyncio.CancelledError:
         pass
