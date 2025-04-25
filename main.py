@@ -212,26 +212,30 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def timeout_question(context, chat_id, seconds):
     try:
         await asyncio.sleep(seconds)
+
+        # JANGAN keluar walau sudah False, kita tetap lanjut
         session = sessions.get(chat_id)
-        if not session or not session.get("question_active", False):
+        if not session:
             return
 
-        session["question_active"] = False
+        if session.get("question_active", False):  # masih aktif? baru kita matikan
+            session["question_active"] = False
 
-        try:
-            await context.bot.edit_message_reply_markup(
-                chat_id=chat_id,
-                message_id=session.get("current_message_id"),
-                reply_markup=None
-            )
-        except:
-            pass
+            try:
+                await context.bot.edit_message_reply_markup(
+                    chat_id=chat_id,
+                    message_id=session.get("current_message_id"),
+                    reply_markup=None
+                )
+            except:
+                pass
 
-        await show_correct_and_continue(context, chat_id, timeout=True)
+            await show_correct_and_continue(context, chat_id, timeout=True)
 
     except asyncio.CancelledError:
-        # Timer dibatalkan (karena semua user udah jawab lebih cepat)
+        # Timeout dibatalkan karena semua user sudah menjawab
         pass
+
 
 
 async def send_question_to_group(context, chat_id):
