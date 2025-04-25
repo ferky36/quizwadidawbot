@@ -347,7 +347,6 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     correct = question["answer"]
     result_text = "⏰ Waktu habis!\n\n📢 Hasil Jawaban:\n" if timeout else "📢 Hasil Jawaban:\n"
 
-    logging.info(f"Melanjutkan ke soal berikutnya, index: {session['index']}")
 
     # Batalkan timeout kalau masih jalan
     timeout_task = session.get("timeout_task")
@@ -418,6 +417,8 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     session["answers"] = {}
     session["answer_order"] = []
 
+    logging.info(f"Melanjutkan ke soal berikutnya, index: {session['index']}")
+    logging.info(f"limit nya, index: {session['limit']}")
     # Kirim soal berikutnya atau tampilkan hasil akhir
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
