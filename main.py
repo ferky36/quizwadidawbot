@@ -107,6 +107,9 @@ async def join_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session["participants"].add(user.id)
+    session["user_names"] = session.get("user_names", {})
+    session["user_names"][user.id] = user.first_name
+
     session["scores"][user.id] = 0
     await update.message.reply_text(f"✅ {user.first_name} telah bergabung ke sesi quiz.\n\nKetik /startquiznow untuk memulai sesi quiz.")
 
@@ -389,11 +392,11 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
 
 
 # Show correct and go to next
-async def show_correct_and_continue(context, chat_id):
+async def show_correct_and_continue(context, chat_id, timeout=False):
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
     correct = question["answer"]
-    result_text = "📢 Hasil Jawaban:\n"
+    result_text = "⏰ Waktu habis!\n\n📢 Hasil Jawaban:\n" if timeout else "📢 Hasil Jawaban:\n"
 
     # Batalkan timeout kalau masih jalan
     timeout_task = session.get("timeout_task")
@@ -434,25 +437,32 @@ async def show_correct_and_continue(context, chat_id):
 
     result_text += f"\nJawaban yang benar adalah: {correct}"
 
-    # Cek siapa yang belum jawab (tidak termasuk ke bagian salah)
-    unanswered = [uid for uid in session["participants"] if uid not in session["answers"]]
     if unanswered:
         names = []
         for uid in unanswered:
-            try:
-                user = await context.bot.get_chat(uid)
-                names.append(user.first_name)
-            except:
-                names.append(f"User tidak dikenal (ID: {uid})")
+            name = session.get("user_names", {}).get(uid)
+            if not name:
+                try:
+                    user = await context.bot.get_chat(uid)
+                    name = user.first_name
+                except:
+                    name = f"User tidak dikenal (ID: {uid})"
+            names.append(name)
         result_text += "\n\n🚫 Belum menjawab:\n" + "\n".join(names)
+
+    # Tambahkan info tambahan
+    result_text += "\n\nℹ️ Ketik /myscore untuk melihat skor sementara kamu."
+    result_text += "\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
+    result_text += "\n\n➡️ Kita lanjut ke soal berikutnya ya..."
+
 
     # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
 
-    await context.bot.send_message(
-        chat_id=chat_id,
-        text="ℹ️ Ketik /myscore untuk melihat skor sementara kamu.\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
-    )
+    # await context.bot.send_message(
+    #     chat_id=chat_id,
+    #     text="ℹ️ Ketik /myscore untuk melihat skor sementara kamu.\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
+    # )
 
     # 🔐 Reset flag sebelum lanjut
     session["question_active"] = False
