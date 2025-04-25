@@ -533,11 +533,14 @@ def main():
     app.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
 
     # Jalankan webhook
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080)),
-        webhook_url=WEBHOOK_URL,
-    )
+    # app.run_webhook(
+    #     listen="0.0.0.0",
+    #     port=int(os.environ.get("PORT", 8080)),
+    #     webhook_url=WEBHOOK_URL,
+    # )
+
+    # Run polling
+    app.run_polling()
 
 
 if __name__ == "__main__":
