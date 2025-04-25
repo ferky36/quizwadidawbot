@@ -445,7 +445,7 @@ def update_global_scores(chat_id, local_scores):
 
 # Show final leaderboard
 # Show final leaderboard
-async def show_final_scores(context, chat_id):t_id):
+async def show_final_scores(context, chat_id):
     session = sessions[chat_id]
     msg = "🏁 Sesi selesai! Skor akhir:\n"
     sorted_scores = sorted(session["scores"].items(), key=lambda x: x[1], reverse=True)
