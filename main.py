@@ -193,21 +193,6 @@ async def start_quiz_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session["waiting_limit_selection"] = True
     await set_question_limit(update, context)
 
-# Send question to group
-# async def send_question_to_group(context, chat_id):
-#     session = sessions[chat_id]
-#     question = session["questions"][session["index"]]
-#     keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in question["options"]]
-
-#     try:
-#         await context.bot.send_message(
-#             chat_id=chat_id,
-#             text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
-#             reply_markup=InlineKeyboardMarkup(keyboard)
-#         )
-#     except Exception as e:
-#         logging.warning(f"Gagal kirim soal ke grup: {e}")
-
 #fungsi timer
 async def timeout_question(context, chat_id, seconds):
     try:
@@ -231,14 +216,20 @@ async def timeout_question(context, chat_id, seconds):
             pass
 
         await show_correct_and_continue(context, chat_id, timeout=True)
+    
+
 
     except asyncio.CancelledError:
         # Timeout dibatalkan karena semua user sudah menjawab
         pass
 
+    logging.info(f"⏰ Timeout selesai untuk chat_id {chat_id}")
 
 
 async def send_question_to_group(context, chat_id):
+
+    
+
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
 
@@ -257,6 +248,7 @@ async def send_question_to_group(context, chat_id):
     session["answer_order"] = []
     session["current_question_id"] = session["index"]
     session["current_message_id"] = sent_message.message_id
+    logging.info(f"⏰ Timeout 15 detik dimulai untuk soal #{session['index'] + 1}")
     session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
 
 
@@ -347,46 +339,6 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
     await update.message.reply_text(answered_msg)
     await update.message.reply_text(not_answered_msg)
 
-# Show correct and go to next
-# async def show_correct_and_continue(context, chat_id):
-#     session = sessions[chat_id]
-#     question = session["questions"][session["index"]]
-#     correct = question["answer"]
-#     result_text = "📢 Hasil Jawaban:\n"
-
-#     for uid in session["participants"]:
-#         selected = session["answers"].get(uid)
-#         try:
-#             user = await context.bot.get_chat(uid)
-#             name = user.first_name
-#         except:
-#             name = f"User {uid}"
-
-#         if selected == correct:
-#             result_text += f"✅ {name} menjawab benar!\n"
-#             session["scores"][uid] += 1
-#         else:
-#             result_text += f"❌ {name} salah.\n"
-
-#     result_text += f"\nJawaban yang benar adalah: {correct}"
-#     await context.bot.send_message(chat_id=chat_id, text=result_text)
-
-#     # Update global score
-#     # update_global_scores(chat_id, session["scores"])
-
-#     await context.bot.send_message(
-#         chat_id=chat_id,
-#         text="ℹ️ Ketik /myscore untuk melihat skor sementara kamu.\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
-#     )
-
-#     session["index"] += 1
-#     session["answers"] = {}
-
-#     if session["index"] < session["limit"]:
-#         await send_question_to_group(context, chat_id)
-#     else:
-#         await show_final_scores(context, chat_id)
-
 
 # Show correct and go to next
 async def show_correct_and_continue(context, chat_id, timeout=False):
@@ -394,6 +346,8 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     question = session["questions"][session["index"]]
     correct = question["answer"]
     result_text = "⏰ Waktu habis!\n\n📢 Hasil Jawaban:\n" if timeout else "📢 Hasil Jawaban:\n"
+
+    logging.info(f"Melanjutkan ke soal berikutnya, index: {session['index']}")
 
     # Batalkan timeout kalau masih jalan
     timeout_task = session.get("timeout_task")
@@ -602,13 +556,6 @@ def main():
     app.add_handler(CallbackQueryHandler(handle_answer, pattern="^(?!limit_)(?!start_quiz).+"))
     app.add_handler(CallbackQueryHandler(handle_limit_selection, pattern="^limit_.*"))
     app.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
-
-    # Jalankan webhook
-    # app.run_webhook(
-    #     listen="0.0.0.0",
-    #     port=int(os.environ.get("PORT", 8080)),
-    #     webhook_url=WEBHOOK_URL,
-    # )
 
     # Run polling
     app.run_polling()
