@@ -4,10 +4,8 @@ import random
 import requests
 import csv
 import io
-import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
-from flask import Flask, request
 
 logging.basicConfig(level=logging.INFO)
 
@@ -56,16 +54,6 @@ def load_questions_from_sheet(url):
 
 sheet_url = "https://docs.google.com/spreadsheets/d/1iG0yUxbWU90wY7p3vpaoc0YPUJIsFjxx9Icnf4I2l14/export?format=csv&gid=0"
 all_questions_master = load_questions_from_sheet(sheet_url)
-
-# Flask app
-app = Flask(__name__)
-
-# Webhook endpoint
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    application.process_update(update)
-    return 'ok'
 
 # Start (new entrypoint)
 async def start_quiz_wadidaw(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -512,27 +500,20 @@ async def restart_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Main
 def main():
-    global bot
-    bot = ApplicationBuilder().token("8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0").build()
-
-    # Add handlers
-    bot.add_handler(CommandHandler("quizwadidaw", start_quiz_wadidaw))
-    bot.add_handler(CommandHandler("joinquiz", join_quiz))
-    bot.add_handler(CommandHandler("setlimit", set_question_limit))
-    bot.add_handler(CommandHandler("startquiznow", start_quiz_now))
-    bot.add_handler(CommandHandler("questionstatus", show_question_status))
-    bot.add_handler(CommandHandler("myscore", my_score))
-    bot.add_handler(CommandHandler("leaderboard", leaderboard))
-    bot.add_handler(CommandHandler("restartquiz", restart_quiz))
-    bot.add_handler(CommandHandler("listpemain", list_players)) 
-    bot.add_handler(CallbackQueryHandler(handle_answer, pattern="^(?!limit_)(?!start_quiz).+"))
-    bot.add_handler(CallbackQueryHandler(handle_limit_selection, pattern="^limit_.*"))
-    bot.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
-
-    # Set webhook
-    PORT = int(os.environ.get('PORT', 5000))
-    bot.run_webhook(listen="0.0.0.0", port=PORT, url_path='8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0')
-    app.run(host='0.0.0.0', port=PORT)
+    app = ApplicationBuilder().token("8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0").build()
+    app.add_handler(CommandHandler("quizwadidaw", start_quiz_wadidaw))
+    app.add_handler(CommandHandler("joinquiz", join_quiz))
+    app.add_handler(CommandHandler("setlimit", set_question_limit))
+    app.add_handler(CommandHandler("startquiznow", start_quiz_now))
+    app.add_handler(CommandHandler("questionstatus", show_question_status))
+    app.add_handler(CommandHandler("myscore", my_score))
+    app.add_handler(CommandHandler("leaderboard", leaderboard))
+    app.add_handler(CommandHandler("restartquiz", restart_quiz))
+    app.add_handler(CommandHandler("listpemain", list_players)) 
+    app.add_handler(CallbackQueryHandler(handle_answer, pattern="^(?!limit_)(?!start_quiz).+"))
+    app.add_handler(CallbackQueryHandler(handle_limit_selection, pattern="^limit_.*"))
+    app.add_handler(CallbackQueryHandler(start_quiz_button, pattern="^start_quiz$"))
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
