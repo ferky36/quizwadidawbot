@@ -460,11 +460,6 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
 
-    # await context.bot.send_message(
-    #     chat_id=chat_id,
-    #     text="ℹ️ Ketik /myscore untuk melihat skor sementara kamu.\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
-    # )
-
     # 🔐 Reset flag sebelum lanjut
     session["question_active"] = False
     session["index"] += 1
