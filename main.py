@@ -198,20 +198,26 @@ async def timeout_question(context, chat_id, seconds):
     await asyncio.sleep(seconds)
     session = sessions.get(chat_id)
 
-    # ⛔ Soal sudah dijawab semua?
-    if not session or not session.get("question_active", False):
+    print(f"[DEBUG] [timeout_question] Timer selesai untuk chat_id {chat_id}")
+
+    if not session:
+        print("[DEBUG] [timeout_question] Tidak ada session.")
         return
 
+    if not session.get("question_active", False):
+        print("[DEBUG] [timeout_question] Soal sudah tidak aktif (mungkin sudah dijawab?), tapi tetap lanjut ke next question.")
+        # return
+
+    print(f"[DEBUG] [timeout_question] Menandai soal sebagai selesai.")
     session["question_active"] = False
-    await context.bot.send_message(chat_id, "⏰ Waktu habis! Lanjut ke soal berikutnya.")
-    await show_correct_and_continue(context, chat_id)
+    await show_correct_and_continue(context, chat_id, timeout=True)
 
 
 
+#fungsi send question ke grup
 async def send_question_to_group(context, chat_id):
-
-    
-
+    session = sessions[chat_id]
+    print(f"[DEBUG] Soal ke-{session['index'] + 1} sudah dikirim setelah timeout.")
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
 
@@ -222,17 +228,18 @@ async def send_question_to_group(context, chat_id):
     session["question_active"] = True
     session["answer_order"] = []
 
-    await context.bot.send_message(
+    # ⏱️ Kirim soal dan simpan message_id
+    msg = await context.bot.send_message(
         chat_id=chat_id,
         text=f"❓ Soal {session['index'] + 1}:\n{question['question']}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+    session["current_message_id"] = msg.message_id
+
+    print(f"[DEBUG] Soal ke-{session['index'] + 1} dikirim ke chat_id {chat_id}")
 
     # ⏱️ Mulai timer 15 detik untuk soal ini
-    asyncio.create_task(timeout_question(context, chat_id, 15))
-
-
-
+    session["timeout_task"] = asyncio.create_task(timeout_question(context, chat_id, 15))
 
 # Handle Answer
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -246,14 +253,8 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("❗ Quiz belum dimulai. Gunakan /startquiznow")
         return
 
-    if not session.get("question_active", False):
+    if not session.get("question_active", False) or query.message.message_id != session.get("current_message_id"):
         await query.message.reply_text("❗ Waktu menjawab sudah habis atau soal sudah berganti.")
-        return
-
-    logging.info(f"query.message.message_id: {query.message.message_id}")
-    logging.info(f"current_message_id: {session}")
-    if query.message.message_id != session.get("current_message_id"):
-        await query.message.reply_text("❗ Ini soal yang sudah lewat. Tidak bisa dijawab lagi.")
         return
 
     if user_id not in session["participants"]:
@@ -325,6 +326,8 @@ async def show_question_status(update: Update, context: ContextTypes.DEFAULT_TYP
 
 # Show correct and go to next
 async def show_correct_and_continue(context, chat_id, timeout=False):
+    print(f"[DEBUG] Masuk show_correct_and_continue | timeout={timeout}")
+
     session = sessions[chat_id]
     question = session["questions"][session["index"]]
     correct = question["answer"]
@@ -337,7 +340,6 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     logging.info(f"timeout_task: {timeout_task}")
     if timeout_task and not timeout_task.done():
         timeout_task.cancel()
-
 
     # List pengguna yang jawab benar dalam urutan kecepatan
     correct_users_ordered = []
@@ -373,12 +375,15 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
 
     result_text += f"\nJawaban yang benar adalah: {correct}"
 
+    print(f"[DEBUG] result_text: {result_text}")
     # Cek siapa yang belum jawab (tidak termasuk ke bagian salah)
     unanswered = [uid for uid in session["participants"] if uid not in session["answers"]]
+    print(f"[DEBUG] unanswered: {unanswered}")
     if unanswered:
         names = []
         for uid in unanswered:
             name = session.get("user_names", {}).get(uid)
+            print(f"[DEBUG] unanswered: {name}")
             if not name:
                 try:
                     user = await context.bot.get_chat(uid)
@@ -392,20 +397,25 @@ async def show_correct_and_continue(context, chat_id, timeout=False):
     result_text += "\n\nℹ️ Ketik /myscore untuk melihat skor sementara kamu."
     result_text += "\nℹ️ Ketik /questionstatus untuk melihat siapa aja yg sudah/belum jawab soal."
     result_text += "\n\n➡️ Kita lanjut ke soal berikutnya ya..."
+    
+    print(f"[DEBUG] result_text tambahan: {result_text}")
 
-
-    # Kirim hasil dan lanjutkan
     await context.bot.send_message(chat_id=chat_id, text=result_text)
 
     # 🔐 Reset flag sebelum lanjut
     session["question_active"] = False
+    print(f"[DEBUG] Menambah index dari {session['index']}")
     session["index"] += 1
     session["answers"] = {}
     session["answer_order"] = []
+    
+    print(f"[DEBUG] Siap lanjut ke soal berikutnya. Index: {session['index']}, Limit: {session['limit']}")
 
     if session["index"] < session["limit"]:
         await send_question_to_group(context, chat_id)
+        print(f"[DEBUG] Soal ke-{session['index'] + 1} dikirim setelah timeout.")
     else:
+        print("[DEBUG] Sesi quiz selesai. Tidak lanjut soal.")
         await show_final_scores(context, chat_id)
 
 
@@ -520,12 +530,13 @@ async def restart_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     return web.Response()
 
 # Main
-TOKEN = os.environ.get("BOT_TOKEN")
+# TOKEN = os.environ.get("BOT_TOKEN")
 # WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
 
 def main():
     global app
-    app = ApplicationBuilder().token(TOKEN).build()
+    # app = ApplicationBuilder().token("TOKEN").build()
+    app = ApplicationBuilder().token("8054761920:AAGVaOnzt6MbvOamAca3HhxGDqZy6Ml2FA0").build()
 
     # Tambahkan semua handler seperti sebelumnya
     app.add_handler(CommandHandler("quizwadidaw", start_quiz_wadidaw))
